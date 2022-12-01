@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	duration   int64  = 1
+	duration   int64  = 12
 	url        string = "https://api.nasa.gov/planetary/apod"
 	defaultKey string = "DEMO_KEY"
 )
@@ -88,7 +88,7 @@ func (a *APODClient) Run(ch chan ApodOutput, logger *logrus.Logger) {
 		select {
 		case <-a.Quit:
 			return
-		case <-time.After(time.Duration(a.Durration) * time.Minute):
+		case <-time.After(time.Duration(a.Durration) * time.Hour):
 			apod, err := a.Query()
 			if err != nil {
 				logger.Errorf("APOND.Error:%s", err.Error())

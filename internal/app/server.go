@@ -8,7 +8,7 @@ import (
 
 	"github.com/GritselMaks/BT_API/internal/apod"
 	"github.com/GritselMaks/BT_API/internal/store/models"
-	store "github.com/GritselMaks/BT_API/internal/store/postgreSQL"
+	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"github.com/GritselMaks/BT_API/internal/store/pudgestore"
 	"github.com/GritselMaks/BT_API/internal/utils"
 	"github.com/gorilla/mux"
@@ -21,7 +21,7 @@ type Server struct {
 	config     Config
 	router     *mux.Router
 	logger     *logrus.Logger
-	store      *store.Store
+	store      *postgresql.Store
 	pudgeStore *pudgestore.Pudge
 
 	apodClient *apod.APODClient
@@ -70,8 +70,8 @@ func (s *Server) configLoger() {
 	s.logger = logger
 }
 
-func (s *Server) configStore(conf *store.DBConfig) error {
-	store, err := store.OpenStore(s.config.Store)
+func (s *Server) configStore(conf *postgresql.DBConfig) error {
+	store, err := postgresql.OpenStore(s.config.Store)
 	if err != nil {
 		return err
 	}

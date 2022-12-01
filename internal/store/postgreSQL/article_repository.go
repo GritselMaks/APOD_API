@@ -1,4 +1,4 @@
-package store
+package postgresql
 
 import "github.com/GritselMaks/BT_API/internal/store/models"
 

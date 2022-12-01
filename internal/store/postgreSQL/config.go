@@ -1,4 +1,4 @@
-package store
+package postgresql
 
 type DBConfig struct {
 	Host     string `yaml:"hots"`

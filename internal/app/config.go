@@ -3,16 +3,16 @@ package app
 import (
 	"io/ioutil"
 
-	store "github.com/GritselMaks/BT_API/internal/store/postgreSQL"
+	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	Http       Http            `yaml:"http"`
-	LogLevel   string          `yaml:"log_level"`
-	LogPath    string          `yaml:"log_path"`
-	Store      *store.DBConfig `yaml:"store"`
-	LocalStore string          `yaml:"local_store"`
+	Http       Http                 `yaml:"http"`
+	LogLevel   string               `yaml:"log_level"`
+	LogPath    string               `yaml:"log_path"`
+	Store      *postgresql.DBConfig `yaml:"store"`
+	LocalStore string               `yaml:"local_store"`
 }
 type Http struct {
 	Host string `yaml:"host"`

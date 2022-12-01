@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "./configs/config.conf", "service config")
+	configPath := flag.String("config", "../../configs/config.conf", "service config")
 	flag.Parse()
 
 	// Parse config
@@ -32,7 +32,7 @@ func main() {
 
 	// Update migrations
 	m, err := migrate.New(
-		"file://internal/store/migrations",
+		"file://../../internal/store/migrations",
 		databaseUrl)
 	if err != nil {
 		log.Fatal("App::load migrate error: ", err)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -16,12 +15,9 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "../../configs/config.conf", "service config")
-	flag.Parse()
-
 	// Parse config
 	loadConfig := func() *app.Config {
-		cfg, err := app.LoadConfig(*configPath)
+		cfg, err := app.LoadConfig()
 		if err != nil {
 			log.Fatal("App::Initialize load config error: ", err)
 		}

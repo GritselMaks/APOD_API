@@ -128,7 +128,7 @@ func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 
 // Creates an HTTP server using the provided handler,
 func (s *Server) ServeHTTPHandler(ctx context.Context) error {
-	addr := fmt.Sprintf(s.config.Http.Host + ":" + s.config.Http.Port)
+	addr := fmt.Sprintf(s.config.Host + ":" + s.config.Port)
 	return s.ServeHTTP(ctx, &http.Server{
 		Addr:    addr,
 		Handler: s.router,

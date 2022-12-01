@@ -18,7 +18,7 @@ func (s *Server) GetArticles() http.Handler {
 			return
 		}
 		for i, article := range articles {
-			url := fmt.Sprintf("http://%s:%s/picture/%s", s.config.Http.Host, s.config.Http.Port, article.Date)
+			url := fmt.Sprintf("http://%s:%s/picture/%s", s.config.Host, s.config.Port, article.Date)
 			articles[i].Url = url
 		}
 		ResponseWithJSON(w, http.StatusOK, articles)
@@ -41,7 +41,7 @@ func (s *Server) GetArticleWithDate() http.Handler {
 			RespondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		url := fmt.Sprintf("http://%s:%s/picture/%s", s.config.Http.Host, s.config.Http.Port, article.Date)
+		url := fmt.Sprintf("http://%s:%s/picture/%s", s.config.Host, s.config.Port, article.Date)
 		article.Url = url
 		ResponseWithJSON(w, http.StatusOK, article)
 	}))

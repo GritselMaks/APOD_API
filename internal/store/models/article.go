@@ -3,8 +3,8 @@ package models
 import "github.com/GritselMaks/BT_API/internal/apod"
 
 type Articles struct {
-	ID          int    `json:"id"`
-	Date        string `json:"-"`
+	ID          int    `json:"-"`
+	Date        string `json:"data"`
 	Title       string `json:"title"`
 	Explanation string `json:"explanation"`
 	Url         string `json:"url"`

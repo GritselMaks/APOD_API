@@ -46,6 +46,10 @@ func main() {
 	// Create server and start
 	s := app.NewServer(*conf)
 	s.Initialize()
+
+	//Add content in store
+	s.AddContent()
+
 	err = s.ServeHTTPHandler(ctx)
 	defer stop()
 	if err != nil {

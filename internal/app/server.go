@@ -64,7 +64,7 @@ func (s *Server) configLoger() {
 	}
 	loggerFile, err := utils.InitFile(*logPath, kMaxLogfileSize)
 	if err != nil {
-		logger.Error(err)
+		logger.Error("error open log file: %v", err.Error())
 	} else {
 		logger.SetOutput(loggerFile)
 	}
@@ -161,4 +161,22 @@ func (s *Server) AddArticle(a apod.ApodOutput) error {
 		return err
 	}
 	return nil
+}
+
+//func run for adddig date in storage
+func (s *Server) AddContent() {
+	now := time.Now().Format("2006-01-02")
+	params := "start_date=2022-11-02&end_date=" + now
+	rows, err := s.apodClient.QueryWithParam(params)
+	if err != nil {
+		return
+	}
+	for _, r := range rows {
+		p, err := s.apodClient.GetPicture(r.Url)
+		if err != nil {
+			continue
+		}
+		s.pudgeStore.Set(r.Date, p)
+		s.store.Articles().Create(models.MakeArticle(r))
+	}
 }

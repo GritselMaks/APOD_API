@@ -1,6 +1,7 @@
 version: "3.9"
 services:
-  database:
+  postgres:
+    container_name: db_bt_api
     image: "postgres:14-alpine"
     environment: 
       POSTGRES_USER: postgres
@@ -8,10 +9,27 @@ services:
       POSTGRES_DB: bt_api
     ports:
       - 5432:5432
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+    networks:
+      - mynet
   apiserver:
-    build:
-      context: .
+    container_name: bt_api
+    build: .
+    restart: on-failure
+    volumes:
+      - api:/usr/src/app/
     depends_on:
-      - database
+      - postgres
+    networks:
+      - mynet
     ports:
-      - 8080:8080
+      - 8080:8080  
+  
+volumes:
+  api:
+  database_postgres:  
+
+networks:
+  mynet:
+    driver: bridge  

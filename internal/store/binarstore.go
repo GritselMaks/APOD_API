@@ -1,6 +1,6 @@
-package pudgestore
+package store
 
-type Repository interface {
+type BinarStorage interface {
 	Set(key string, value []byte) error
 	Get(key string) ([]byte, error)
 	GetList() ([][]byte, error)

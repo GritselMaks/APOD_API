@@ -3,6 +3,7 @@ package postgresql_test
 import (
 	"testing"
 
+	"github.com/GritselMaks/BT_API/internal/store"
 	"github.com/GritselMaks/BT_API/internal/store/models"
 	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestArticleRepositoryFindByDate(t *testing.T) {
 	date := "2022-11-29"
 
 	_, err := s.Articles().ShowArticlebByDate(date)
-	assert.Error(t, err)
+	assert.EqualError(t, err, store.ErrNotFound.Error())
 
 	s.Articles().Create(&models.Articles{Date: date, Title: "Title", Explanation: "Explanation"})
 	article, err := s.Articles().ShowArticlebByDate(date)

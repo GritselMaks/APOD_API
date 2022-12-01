@@ -7,7 +7,7 @@ import (
 )
 
 func TestPudgeStore(t *testing.T) (*Pudge, func()) {
-	path := "~/test_pudge.db"
+	path := "test_pudge.db"
 	cfg := &pudge.Config{
 		SyncInterval: 0}
 	db, err := pudge.Open(path, cfg)

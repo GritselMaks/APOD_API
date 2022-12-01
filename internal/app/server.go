@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/GritselMaks/BT_API/internal/apod"
+	"github.com/GritselMaks/BT_API/internal/store"
 	"github.com/GritselMaks/BT_API/internal/store/models"
 	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"github.com/GritselMaks/BT_API/internal/store/pudgestore"
@@ -21,8 +22,8 @@ type Server struct {
 	config     Config
 	router     *mux.Router
 	logger     *logrus.Logger
-	store      *postgresql.Store
-	pudgeStore *pudgestore.Pudge
+	store      store.Store
+	pudgeStore store.BinarStorage
 
 	apodClient *apod.APODClient
 	apodChan   chan apod.ApodOutput
@@ -118,7 +119,7 @@ func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 
 	// Return any errors that happened during shutdown.
 	if err := <-errCh; err != nil {
-		s.logger.Info("failed to shutdown: %s", err.Error())
+		s.logger.Errorf("failed to shutdown: %s", err.Error())
 		return fmt.Errorf("failed to shutdown: %s", err.Error())
 	}
 

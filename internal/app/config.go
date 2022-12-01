@@ -1,35 +1,36 @@
 package app
 
 import (
-	"io/ioutil"
-
 	"github.com/GritselMaks/BT_API/internal/store/postgresql"
-	"gopkg.in/yaml.v3"
+	"github.com/caarlos0/env/v6"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Http       Http                 `yaml:"http"`
-	LogLevel   string               `yaml:"log_level"`
-	LogPath    string               `yaml:"log_path"`
-	Store      *postgresql.DBConfig `yaml:"store"`
-	LocalStore string               `yaml:"local_store"`
-}
-type Http struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
+	Host       string `env:"HOST,required"`
+	Port       string `env:"PORT,required"`
+	LogLevel   string `env:"LOGLEVEL,required"`
+	LogPath    string `env:"LOGPATH,required"`
+	Store      *postgresql.DBConfig
+	LocalStore string `env:"LOCAL_STORE,required"`
 }
 
 // Initialize config
-func LoadConfig(configPath string) (*Config, error) {
-	buf, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, err
-	}
-
+func LoadConfig() (*Config, error) {
 	var cfg Config
-	err = yaml.Unmarshal(buf, &cfg)
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		return nil, err
 	}
+	err = env.Parse(&cfg)
+	if err != nil {
+		return nil, err
+	}
+	var dbcfg postgresql.DBConfig
+	err = env.Parse(&dbcfg)
+	if err != nil {
+		return nil, err
+	}
+	cfg.Store = &dbcfg
 	return &cfg, nil
 }

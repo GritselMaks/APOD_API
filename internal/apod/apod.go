@@ -70,6 +70,27 @@ func (a *APODClient) Query() (*ApodOutput, error) {
 	return &result, nil
 }
 
+func (a *APODClient) QueryWithParam(queryParams string) ([]ApodOutput, error) {
+	if len(queryParams) == 0 {
+		return nil, fmt.Errorf("you set query params")
+	}
+	resp, err := http.Get(fmt.Sprintf("%s?api_key=%s&%s", a.Url, a.ApiKey, queryParams))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var result []ApodOutput
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func (a *APODClient) GetPicture(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {

@@ -155,10 +155,9 @@ func (s *Server) SavePicture(ulr string) (*string, error) {
 
 func (s *Server) AddArticle(a apod.ApodOutput) error {
 	article := models.MakeArticle(a)
-	id, err := s.store.Articles().Create(article)
+	err := s.store.Articles().Create(article)
 	if err != nil {
 		return err
 	}
-	fmt.Println(id)
 	return nil
 }

@@ -4,22 +4,21 @@ import (
 	"testing"
 
 	"github.com/GritselMaks/BT_API/internal/store/models"
-	store "github.com/GritselMaks/BT_API/internal/store/postgreSQL"
+	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestArticleRepository_Create(t *testing.T) {
-	s, teardown := store.TestStore(t)
+	s, teardown := postgresql.TestStore(t)
 	defer teardown("article")
-	article, err := s.Articles().Create(&models.Articles{
+	err := s.Articles().Create(&models.Articles{
 		Date: "2022-11-29",
 	})
 	assert.NoError(t, err)
-	assert.NotNil(t, article)
 }
 
 func TestArticleRepositoryFindByDate(t *testing.T) {
-	s, teardown := store.TestStore(t)
+	s, teardown := postgresql.TestStore(t)
 	defer teardown("article")
 	date := "2022-11-29"
 
@@ -33,7 +32,7 @@ func TestArticleRepositoryFindByDate(t *testing.T) {
 }
 
 func TestArticleRepositoryShowArticles(t *testing.T) {
-	s, teardown := store.TestStore(t)
+	s, teardown := postgresql.TestStore(t)
 	defer teardown("article")
 	a1 := models.Articles{Date: "2022-11-29", Title: "Title", Explanation: "Explanation"}
 	a2 := models.Articles{Date: "2022-11-30", Title: "Title", Explanation: "Explanation"}

@@ -4,7 +4,7 @@ import "github.com/GritselMaks/BT_API/internal/apod"
 
 type Articles struct {
 	ID          int    `json:"-"`
-	Date        string `json:"data"`
+	Date        string `json:"date"`
 	Title       string `json:"title"`
 	Explanation string `json:"explanation"`
 	Url         string `json:"url"`

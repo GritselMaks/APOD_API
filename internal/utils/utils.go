@@ -8,8 +8,12 @@ import (
 	"time"
 )
 
-func InitFile(path string, fileMaxSizeBytes int64) (*os.File, error) {
-	return os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+func InitFile(path string) (*os.File, error) {
+	p, err := preparePath(path)
+	if err != nil {
+		return nil, err
+	}
+	return os.OpenFile(*p, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 }
 
 func StableFilePath(path string) (*string, error) {
@@ -43,4 +47,11 @@ func DoWithTries(fn func() error, attemtps int, delay time.Duration) (err error)
 	}
 
 	return
+}
+
+func PreparePictureUrl(host, port, path string) string {
+	if host == "" {
+		return fmt.Sprintf("http://localhost:%s/picture/%s", port, path)
+	}
+	return fmt.Sprintf("http://%s:%s/picture/%s", host, port, path)
 }

@@ -47,7 +47,8 @@ func main() {
 	s := app.NewServer(*conf)
 	s.Initialize()
 
-	//Add content in store
+	//if you don't want add content to store, commit this function.
+	//New picture will add every day.
 	s.AddContent()
 
 	err = s.ServeHTTPHandler(ctx)

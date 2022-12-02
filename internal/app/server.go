@@ -16,8 +16,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const kMaxLogfileSize = 10 * 1024 * 1024
-
 type Server struct {
 	config     Config
 	router     *mux.Router
@@ -62,7 +60,7 @@ func (s *Server) configLoger() {
 	if err != nil {
 		logger.Error(err)
 	}
-	loggerFile, err := utils.InitFile(*logPath, kMaxLogfileSize)
+	loggerFile, err := utils.InitFile(*logPath)
 	if err != nil {
 		logger.Error("error open log file: %v", err.Error())
 	} else {
@@ -128,7 +126,7 @@ func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 
 // Creates an HTTP server using the provided handler,
 func (s *Server) ServeHTTPHandler(ctx context.Context) error {
-	addr := fmt.Sprintf(s.config.Host + ":" + s.config.Port)
+	addr := fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
 	return s.ServeHTTP(ctx, &http.Server{
 		Addr:    addr,
 		Handler: s.router,
@@ -163,7 +161,7 @@ func (s *Server) AddArticle(a apod.ApodOutput) error {
 	return nil
 }
 
-//func run for adddig date in storage
+// Func run for adddig date in storage since 02.11.2022
 func (s *Server) AddContent() {
 	now := time.Now().Format("2006-01-02")
 	params := "start_date=2022-11-02&end_date=" + now

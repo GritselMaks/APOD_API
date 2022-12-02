@@ -14,6 +14,6 @@ API have 3 endpoints
 1. git clone https://github.com/GritselMaks/BT_API
 2. docker-compose up
 
-#Note
+# Note
 If you want to add pictures from the previous month, you should uncommitted func s.AddContent().
 New picture added every day

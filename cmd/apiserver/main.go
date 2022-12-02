@@ -24,17 +24,6 @@ func main() {
 		return cfg
 	}
 	conf := loadConfig()
-	databaseUrl := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", conf.Store.User, conf.Store.Password, conf.Store.Host, conf.Store.DBName)
-
-	// Update migrations
-	m, err := migrate.New(
-		"file://../../internal/store/migrations",
-		databaseUrl)
-	if err != nil {
-		log.Fatal("App::load migrate error: ", err)
-	}
-	m.Up()
-
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer func() {
 		stop()
@@ -47,9 +36,18 @@ func main() {
 	s := app.NewServer(*conf)
 	s.Initialize()
 
+	// Update migrations
+	databaseUrl := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", conf.Store.User, conf.Store.Password, conf.Store.Host, conf.Store.DBName)
+	m, err := migrate.New(
+		"file://../../internal/store/migrations",
+		databaseUrl)
+	if err != nil {
+		log.Fatal("App::load migrate error: ", err)
+	}
+	m.Up()
+
 	// If you want to add pictures from the previous month, you should uncommitted.
 	// New picture will add every day.
-
 	// s.AddContent()
 
 	err = s.ServeHTTPHandler(ctx)

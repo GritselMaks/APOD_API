@@ -55,14 +55,9 @@ func (s *Server) configLoger() {
 		level = logrus.InfoLevel
 	}
 	logger.SetLevel(level)
-
-	logPath, err := utils.StableFilePath(s.config.LogPath)
+	loggerFile, err := utils.InitFile(s.config.LogPath)
 	if err != nil {
-		logger.Error(err)
-	}
-	loggerFile, err := utils.InitFile(*logPath)
-	if err != nil {
-		logger.Error("error open log file: %v", err.Error())
+		logger.Error("error open log file: ", err.Error())
 	} else {
 		logger.SetOutput(loggerFile)
 	}

@@ -21,7 +21,7 @@ type APODClient struct {
 	ApiKey    string
 	Url       string
 	Durration int64
-	Quit      chan bool
+	Quit      chan struct{}
 
 	pudgeStore pudgestore.Pudge
 }
@@ -30,7 +30,7 @@ func NewApod(pudge pudgestore.Pudge) *APODClient {
 	return &APODClient{
 		ApiKey:     defaultKey,
 		Durration:  duration,
-		Quit:       make(chan bool),
+		Quit:       make(chan struct{}),
 		Url:        url,
 		pudgeStore: pudge,
 	}
@@ -131,7 +131,7 @@ func (a *APODClient) Run(ch chan ApodOutput, logger *logrus.Logger) {
 }
 
 func (a *APODClient) Stop() {
-	a.Quit <- true
+	a.Quit <- struct{}{}
 }
 
 func (a *APODClient) SavePicture(key string, value []byte) error {

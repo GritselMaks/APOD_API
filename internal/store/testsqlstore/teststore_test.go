@@ -10,7 +10,7 @@ import (
 
 func TestArticleRepository_Create(t *testing.T) {
 	s := testsqlstore.TestStore()
-	err := s.Articles().Create(&models.Articles{
+	err := s.Articles().Create(&models.Article{
 		Date: "2022-11-29",
 	})
 	assert.NoError(t, err)

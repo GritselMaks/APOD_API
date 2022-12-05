@@ -24,7 +24,7 @@ func testServer() *Server {
 func Test_GetArticles(t *testing.T) {
 	t.Parallel()
 	srv := testServer()
-	a := models.Articles{
+	a := models.Article{
 		Date: "2022-12-1",
 	}
 	srv.store.Articles().Create(&a)
@@ -69,7 +69,7 @@ func Test_GetArticles(t *testing.T) {
 func Test_GetArticleWithDate(t *testing.T) {
 	t.Parallel()
 	srv := testServer()
-	a := models.Articles{
+	a := models.Article{
 		Date: "2022-12-1",
 	}
 	srv.store.Articles().Create(&a)
@@ -139,7 +139,7 @@ func Test_GetArticleWithDate(t *testing.T) {
 func Test_GetPicture(t *testing.T) {
 	t.Parallel()
 	srv := testServer()
-	a := models.Articles{
+	a := models.Article{
 		Date: "2022-12-1",
 	}
 	srv.store.Articles().Create(&a)

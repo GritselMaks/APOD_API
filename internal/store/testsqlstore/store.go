@@ -6,11 +6,11 @@ import (
 )
 
 type Store struct {
-	db map[string]models.Articles
+	db map[string]models.Article
 }
 
 func TestStore() *Store {
-	return &Store{db: make(map[string]models.Articles)}
+	return &Store{db: make(map[string]models.Article)}
 }
 
 func (s *Store) Articles() store.IArticlesRepository {

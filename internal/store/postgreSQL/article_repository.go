@@ -11,7 +11,7 @@ type ArticlesRepository struct {
 
 func (r *ArticlesRepository) Create(a *models.Article) error {
 	res := r.store.db.QueryRow(
-		"INSERT INTO article (date_at, title, explanation) values ($1,$2,$3) RETURNING id",
+		"INSERT INTO article (date_at, title, explanation) values ($1,$2,$3)",
 		a.Date,
 		a.Title,
 		a.Explanation,

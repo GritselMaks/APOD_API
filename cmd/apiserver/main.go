@@ -39,7 +39,7 @@ func main() {
 	// Update migrations
 	databaseUrl := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", conf.Store.User, conf.Store.Password, conf.Store.Host, conf.Store.DBName)
 	m, err := migrate.New(
-		"file://../../internal/store/migrations",
+		"file://migrations",
 		databaseUrl)
 	if err != nil {
 		log.Fatal("App::load migrate error: ", err)

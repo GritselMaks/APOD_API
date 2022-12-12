@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/GritselMaks/BT_API/internal/apod"
+	"github.com/GritselMaks/BT_API/internal/event_loop"
 	"github.com/GritselMaks/BT_API/internal/store"
 	"github.com/GritselMaks/BT_API/internal/store/models"
 	"github.com/GritselMaks/BT_API/internal/store/postgresql"
@@ -16,6 +17,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	period time.Duration = time.Hour * 24
+	offset time.Duration = time.Hour * 12
+)
+
 type Server struct {
 	config     Config
 	router     *mux.Router
@@ -23,8 +29,8 @@ type Server struct {
 	store      store.Store
 	pudgeStore store.BinarStorage
 
-	apodClient *apod.APODClient
-	apodChan   chan apod.ApodOutput
+	apodClient apod.IAPOD
+	loop       event_loop.EventLoop
 }
 
 func NewServer(conf Config) *Server {
@@ -37,7 +43,7 @@ func (s *Server) Initialize() {
 	if err := s.configStore(s.config.Store); err != nil {
 		s.logger.Fatalf("error initialize storages: %v", err.Error())
 	}
-	s.apodChan = make(chan apod.ApodOutput)
+	s.loop = *event_loop.NewEvenlLoop()
 }
 
 func (s *Server) configRouter() *mux.Router {
@@ -82,28 +88,24 @@ func (s *Server) configStore(conf *postgresql.DBConfig) error {
 
 	s.store = store
 	s.pudgeStore = pdg
-	s.apodClient = apod.NewApod(*pdg)
+	s.apodClient = apod.NewAPOD("", pdg)
 	return nil
 }
 
 // ServeHTTP starts the server and blocks until the provided context is closed.
+// Run shaduler for getting content
 func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 	s.logger.Info("server starting.....")
 	errCh := make(chan error, 1)
 	go func() {
 		<-ctx.Done()
 		s.logger.Info("server.Serve: context closed")
-		s.apodClient.Stop()
 		time.Sleep(500 * time.Millisecond)
 		s.logger.Info("server.Serve: gracefully shutting down")
 		shutDownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		errCh <- srv.Shutdown(shutDownCtx)
 	}()
-
-	// Run APOD
-	go s.apodClient.Run(s.apodChan, s.logger)
-	go s.AddNewArticle()
 
 	// Run the server. This will block until the provided context is closed.
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -120,35 +122,26 @@ func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 }
 
 // Creates an HTTP server using the provided handler,
-func (s *Server) ServeHTTPHandler(ctx context.Context) error {
+func (s *Server) ServerRun(ctx context.Context) error {
+	// If you want to add pictures from the previous month, you should uncommitted.
+	// New picture will add every day.
+	// s.AddContent()
+
+	s.loop.AddEvent(s.CustomLoopFunc())
+	go s.loop.Schedule(ctx, period, offset)
+
 	addr := fmt.Sprintf("%s:%s", s.config.Host, s.config.Port)
-	return s.ServeHTTP(ctx, &http.Server{
+	err := s.ServeHTTP(ctx, &http.Server{
 		Addr:    addr,
 		Handler: s.router,
 	})
-}
-
-func (s *Server) AddNewArticle() {
-	for {
-		newPicture := <-s.apodChan
-		err := s.AddArticle(newPicture)
-		if err != nil {
-			s.logger.Errorf("Error.Server: store to database:%s", err.Error())
-		}
-	}
-}
-
-func (s *Server) SavePicture(ulr string) (*string, error) {
-	_, err := s.apodClient.GetPicture(ulr)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return nil, nil
+	return nil
 }
 
-func (s *Server) AddArticle(a apod.ApodOutput) error {
-	article := models.MakeArticle(a)
+func (s *Server) AddArticle(article *models.Article) error {
 	err := s.store.Articles().Create(article)
 	if err != nil {
 		return err
@@ -156,20 +149,40 @@ func (s *Server) AddArticle(a apod.ApodOutput) error {
 	return nil
 }
 
+func (s *Server) CustomLoopFunc() func() {
+	return func() {
+		articles, err := s.apodClient.GetContent("", "", "")
+		if err != nil {
+			s.logger.Debugf("Error get article: %s", err.Error())
+			return
+		}
+		for _, article := range articles {
+			if err := s.apodClient.SavePicture(article.Url, article.Date); err != nil {
+				s.logger.Debugf("Error save picture: %s", err.Error())
+				continue
+			}
+			if err := s.store.Articles().Create(&article); err != nil {
+				s.logger.Debugf("Error save article: %s", err.Error())
+				continue
+			}
+		}
+	}
+}
+
 // Func run for adddig date in storage since 02.11.2022
 func (s *Server) AddContent() {
-	now := time.Now().Format("2006-01-02")
-	params := "start_date=2022-11-02&end_date=" + now
-	rows, err := s.apodClient.QueryWithParam(params)
+	rows, err := s.apodClient.GetContent("", "2022-11-02", time.Now().Format("2006-01-02"))
 	if err != nil {
 		return
 	}
 	for _, r := range rows {
-		p, err := s.apodClient.GetPicture(r.Url)
-		if err != nil {
+		if err := s.apodClient.SavePicture(r.Url, r.Date); err != nil {
+			s.logger.Debugf("Error save picture: %s", err.Error())
 			continue
 		}
-		s.pudgeStore.Set(r.Date, p)
-		s.store.Articles().Create(models.MakeArticle(r))
+		if err := s.store.Articles().Create(&r); err != nil {
+			s.logger.Debugf("Error save article: %s", err.Error())
+			continue
+		}
 	}
 }

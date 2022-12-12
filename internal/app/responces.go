@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// jsonErrTmpl is the template to use when returning a JSON error. It is
+// JsonErrTmpl is the template to use when returning a JSON error. It is
 // rendered using Printf, not json.Encode, so values must be escaped by the
 // caller.
 const jsonErrTmpl = `{"error":"%s"}`

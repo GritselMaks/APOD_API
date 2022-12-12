@@ -46,11 +46,7 @@ func main() {
 	}
 	m.Up()
 
-	// If you want to add pictures from the previous month, you should uncommitted.
-	// New picture will add every day.
-	// s.AddContent()
-
-	err = s.ServeHTTPHandler(ctx)
+	err = s.ServerRun(ctx)
 	defer stop()
 	if err != nil {
 		log.Fatal(err)

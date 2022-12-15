@@ -8,7 +8,7 @@ import (
 	"github.com/GritselMaks/BT_API/internal/store/models"
 	"github.com/GritselMaks/BT_API/internal/store/testbinarstore"
 	"github.com/GritselMaks/BT_API/internal/store/testsqlstore"
-	"github.com/sirupsen/logrus"
+	"github.com/GritselMaks/BT_API/pkg/logger"
 )
 
 func testServer() *Server {
@@ -16,7 +16,7 @@ func testServer() *Server {
 	s := NewServer(cfg)
 	s.store = testsqlstore.TestStore()
 	s.pudgeStore = testbinarstore.TestBinarStore()
-	s.logger = logrus.New()
+	s.logger = logger.NewLogger("INFO")
 	s.router = s.configRouter()
 	return s
 }

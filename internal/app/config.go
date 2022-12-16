@@ -9,8 +9,8 @@ import (
 type Config struct {
 	Host       string `env:"HOST,required"`
 	Port       string `env:"PORT,required"`
-	LogLevel   string `env:"LOGLEVEL,required"`
-	LogPath    string `env:"LOGPATH,required"`
+	LogLevel   string `env:"LOG_LEVEL,required"`
+	LogPath    string `env:"LOG_PATH,required"`
 	Store      *postgresql.DBConfig
 	LocalStore string `env:"LOCAL_STORE,required"`
 }

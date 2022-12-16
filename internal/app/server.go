@@ -13,8 +13,8 @@ import (
 	"github.com/GritselMaks/BT_API/internal/store/postgresql"
 	"github.com/GritselMaks/BT_API/internal/store/pudgestore"
 	"github.com/GritselMaks/BT_API/internal/utils"
+	"github.com/GritselMaks/BT_API/pkg/logger"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 type Server struct {
 	config     Config
 	router     *mux.Router
-	logger     *logrus.Logger
+	logger     *logger.Logger
 	store      store.Store
 	pudgeStore store.BinarStorage
 
@@ -55,19 +55,8 @@ func (s *Server) configRouter() *mux.Router {
 }
 
 func (s *Server) configLoger() {
-	logger := logrus.New()
-	level, err := logrus.ParseLevel(s.config.LogLevel)
-	if err != nil {
-		level = logrus.InfoLevel
-	}
-	logger.SetLevel(level)
-	loggerFile, err := utils.InitFile(s.config.LogPath)
-	if err != nil {
-		logger.Error("error open log file: ", err.Error())
-	} else {
-		logger.SetOutput(loggerFile)
-	}
-	s.logger = logger
+	s.logger = logger.NewLogger(s.config.LogLevel)
+	s.logger.Info("logger is created")
 }
 
 func (s *Server) configStore(conf *postgresql.DBConfig) error {
@@ -96,6 +85,7 @@ func (s *Server) configStore(conf *postgresql.DBConfig) error {
 // Run shaduler for getting content
 func (s *Server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 	s.logger.Info("server starting.....")
+	defer s.logger.Info("server stoped.....")
 	errCh := make(chan error, 1)
 	go func() {
 		<-ctx.Done()
@@ -153,16 +143,16 @@ func (s *Server) CustomLoopFunc() func() {
 	return func() {
 		articles, err := s.apodClient.GetContent("", "", "")
 		if err != nil {
-			s.logger.Debugf("Error get article: %s", err.Error())
+			s.logger.Errorf("Error get article: %s", err.Error())
 			return
 		}
 		for _, article := range articles {
 			if err := s.apodClient.SavePicture(article.Url, article.Date); err != nil {
-				s.logger.Debugf("Error save picture: %s", err.Error())
+				s.logger.Errorf("Error save picture: %s", err.Error())
 				continue
 			}
 			if err := s.store.Articles().Create(&article); err != nil {
-				s.logger.Debugf("Error save article: %s", err.Error())
+				s.logger.Errorf("Error save article: %s", err.Error())
 				continue
 			}
 		}

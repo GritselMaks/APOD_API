@@ -1,4 +1,4 @@
-# BT_API
+# APOD_API
 It's api service which save dayly picture and description from APOD.
 API have 3 endpoints
 
